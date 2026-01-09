@@ -24,7 +24,8 @@ class CalApiClient:
 
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "cal-api-version": "2024-08-13"  # Required for v2 API
         }
 
     async def get_event_types(self) -> List[Dict[str, Any]]:
@@ -71,7 +72,15 @@ class CalApiClient:
             )
             response.raise_for_status()
             data = response.json()
-            return data.get("data", {}).get("slots", [])
+
+            # Cal.com V2 API returns: {data: {slots: {"2026-01-12": [{time: "..."}]}}}
+            # We need to flatten this into a simple list
+            slots_by_date = data.get("data", {}).get("slots", {})
+            all_slots = []
+            for date_key, slots_list in slots_by_date.items():
+                all_slots.extend(slots_list)
+
+            return all_slots
 
     async def create_booking(
         self,
@@ -93,16 +102,22 @@ class CalApiClient:
             attendee_timezone: Timezone of the attendee
             metadata: Additional metadata (e.g., meeting reason)
         """
+        # Build payload according to working examples from Cal.com community
+        # timeZone and language go INSIDE attendee object
         payload = {
             "eventTypeId": event_type_id,
             "start": start_time,
             "attendee": {
-                "email": attendee_email,
                 "name": attendee_name,
-                "timeZone": attendee_timezone
-            },
-            "metadata": metadata or {}
+                "email": attendee_email,
+                "timeZone": attendee_timezone,
+                "language": "en"
+            }
         }
+
+        # Add metadata if provided
+        if metadata:
+            payload["metadata"] = metadata
 
         async with httpx.AsyncClient() as client:
             response = await client.post(
