@@ -25,9 +25,15 @@ class CalChatbot:
         self.cal_client = CalApiClient()
         self.default_event_type_id = os.getenv("CAL_EVENT_TYPE_ID")
 
+        # Include current date in system message for better date parsing
+        from datetime import datetime
+        today = datetime.now().strftime("%Y-%m-%d")
+
         self.system_message = {
             "role": "system",
-            "content": """You are a helpful meeting scheduling assistant that helps users book, view, cancel, and reschedule meetings using Cal.com.
+            "content": f"""You are a helpful meeting scheduling assistant that helps users book, view, cancel, and reschedule meetings using Cal.com.
+
+Today's date is {today}.
 
 Your capabilities:
 1. Book new meetings - Ask for date, time, attendee email, attendee name, and reason
