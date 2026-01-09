@@ -163,9 +163,10 @@ class CalApiClient:
             response.raise_for_status()
             data = response.json()
 
-            # Cal.com V2 API returns: {status: "success", data: {bookings: [...]}}
+            # Cal.com V2 API returns: {status: "success", data: [...]} (direct array)
             if "data" in data:
-                return data["data"].get("bookings", [])
+                # data["data"] is already a list of bookings
+                return data["data"] if isinstance(data["data"], list) else []
             return []
 
     async def cancel_booking(self, booking_id: int, reason: Optional[str] = None) -> Dict[str, Any]:
