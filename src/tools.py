@@ -98,20 +98,20 @@ TOOLS: List[Dict[str, Any]] = [
         "type": "function",
         "function": {
             "name": "cancel_booking",
-            "description": "Cancel a scheduled booking/meeting. Use this when the user wants to cancel an existing meeting.",
+            "description": "Cancel a scheduled booking/meeting. First use get_user_bookings to find the booking UID, then cancel it. The booking UID is a string like 'eTHSdCB89qzCiazPWHV15x', not the numeric ID.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "booking_id": {
-                        "type": "integer",
-                        "description": "The ID of the booking to cancel"
+                    "booking_uid": {
+                        "type": "string",
+                        "description": "The UID of the booking to cancel (string, not numeric ID). Get this from get_user_bookings."
                     },
                     "reason": {
                         "type": "string",
-                        "description": "Optional reason for cancellation"
+                        "description": "Reason for cancellation"
                     }
                 },
-                "required": ["booking_id"]
+                "required": ["booking_uid"]
             }
         }
     },

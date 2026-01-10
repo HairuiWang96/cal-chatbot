@@ -247,8 +247,11 @@ Important guidelines:
     async def _cancel_booking(self, args: Dict[str, Any]) -> Dict[str, Any]:
         """Cancel a booking"""
         try:
+            # Cal.com API requires booking UID (string), not numeric ID
+            booking_uid = args.get("booking_uid") or str(args.get("booking_id", ""))
+
             result = await self.cal_client.cancel_booking(
-                booking_id=args["booking_id"],
+                booking_uid=booking_uid,
                 reason=args.get("reason")
             )
 

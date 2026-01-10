@@ -169,21 +169,22 @@ class CalApiClient:
                 return data["data"] if isinstance(data["data"], list) else []
             return []
 
-    async def cancel_booking(self, booking_id: int, reason: Optional[str] = None) -> Dict[str, Any]:
+    async def cancel_booking(self, booking_uid: str, reason: Optional[str] = None) -> Dict[str, Any]:
         """
         Cancel a booking
 
         Args:
-            booking_id: The booking ID to cancel
+            booking_uid: The booking UID (not numeric ID) to cancel
             reason: Optional cancellation reason
         """
-        payload = {}
-        if reason:
-            payload["reason"] = reason
+        # Cancellation reason is required for hosts
+        payload = {
+            "cancellationReason": reason or "User requested cancellation"
+        }
 
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                f"{self.base_url}/bookings/{booking_id}/cancel",
+                f"{self.base_url}/bookings/{booking_uid}/cancel",
                 headers=self.headers,
                 json=payload
             )
