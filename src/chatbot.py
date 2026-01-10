@@ -48,6 +48,8 @@ Important guidelines:
 - If information is missing, ask the user for it
 - After completing an action, confirm the result to the user
 - For date/time parsing, assume the user is in UTC unless they specify otherwise
+- CRITICAL: When checking available slots, ONLY show times that are returned by the get_available_slots function. If the function returns an empty list or no slots, tell the user there are NO available times for that day. NEVER make up or suggest times that weren't in the API response.
+- CRITICAL: When any function returns an "error" field, the operation FAILED. You MUST tell the user about the error and that the operation was NOT successful. NEVER claim success when there's an error in the function response.
 - When listing meetings, format them in a readable way with date, time, and details
 """
         }
@@ -150,7 +152,7 @@ Important guidelines:
             return await self._create_booking(arguments)
 
         elif function_name == "get_user_bookings":
-            return await self._get_user_bookings(arguments)
+            return await self._get_user_bookings(arguments, context)
 
         elif function_name == "cancel_booking":
             return await self._cancel_booking(arguments)
@@ -213,12 +215,17 @@ Important guidelines:
         except Exception as e:
             return {"error": f"Failed to create booking: {str(e)}"}
 
-    async def _get_user_bookings(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _get_user_bookings(self, args: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         """Get bookings for a user"""
         try:
             status = args.get("status", "upcoming")
             after_date = args.get("after_date")
             before_date = args.get("before_date")
+
+            # Use email from args if provided, otherwise use from context
+            user_email = args.get("user_email") or context.get("user_email")
+            if not user_email:
+                return {"error": "User email is required but not provided"}
 
             # Convert dates to ISO format if provided
             after_start = None
@@ -231,7 +238,7 @@ Important guidelines:
 
             bookings = await self.cal_client.get_bookings(
                 status=status,
-                attendee_email=args["user_email"],
+                attendee_email=user_email,
                 after_start=after_start,
                 before_start=before_start
             )
@@ -265,8 +272,11 @@ Important guidelines:
     async def _reschedule_booking(self, args: Dict[str, Any]) -> Dict[str, Any]:
         """Reschedule a booking"""
         try:
+            # Use UID if provided, otherwise try to convert ID to string
+            booking_uid = args.get("booking_uid") or str(args.get("booking_id", ""))
+
             result = await self.cal_client.reschedule_booking(
-                booking_id=args["booking_id"],
+                booking_uid=booking_uid,
                 new_start_time=args["new_start_time"],
                 reason=args.get("reason")
             )

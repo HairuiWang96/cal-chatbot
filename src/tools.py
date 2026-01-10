@@ -68,13 +68,13 @@ TOOLS: List[Dict[str, Any]] = [
         "type": "function",
         "function": {
             "name": "get_user_bookings",
-            "description": "Get a list of scheduled bookings/meetings for a user. Use this when the user asks to see their scheduled events or meetings.",
+            "description": "Get a list of scheduled bookings/meetings for a user. Use this when the user asks to see their scheduled events or meetings. The user's email will be automatically used from context.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "user_email": {
                         "type": "string",
-                        "description": "Email address of the user to get bookings for"
+                        "description": "Email address of the user to get bookings for (optional, will use user's email from context if not provided)"
                     },
                     "status": {
                         "type": "string",
@@ -90,7 +90,7 @@ TOOLS: List[Dict[str, Any]] = [
                         "description": "Only get bookings before this date in YYYY-MM-DD format"
                     }
                 },
-                "required": ["user_email"]
+                "required": []
             }
         }
     },
@@ -119,13 +119,13 @@ TOOLS: List[Dict[str, Any]] = [
         "type": "function",
         "function": {
             "name": "reschedule_booking",
-            "description": "Reschedule an existing booking to a new time. Use this when the user wants to change the time of an existing meeting.",
+            "description": "Reschedule an existing booking to a new time. Use this when the user wants to change the time of an existing meeting. First use get_user_bookings to find the booking UID, then reschedule it. The booking UID is a string like 'hN13LiTrTAsWbuP8dmhLzG', not the numeric ID.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "booking_id": {
-                        "type": "integer",
-                        "description": "The ID of the booking to reschedule"
+                    "booking_uid": {
+                        "type": "string",
+                        "description": "The UID of the booking to reschedule (string, not numeric ID). Get this from get_user_bookings."
                     },
                     "new_start_time": {
                         "type": "string",
@@ -136,7 +136,7 @@ TOOLS: List[Dict[str, Any]] = [
                         "description": "Optional reason for rescheduling"
                     }
                 },
-                "required": ["booking_id", "new_start_time"]
+                "required": ["booking_uid", "new_start_time"]
             }
         }
     }

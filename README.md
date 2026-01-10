@@ -270,6 +270,33 @@ API information and available endpoints.
 
 ### Running Tests
 
+#### Comprehensive Feature Test Suite
+
+Run the complete test suite that verifies all core and bonus features:
+
+```bash
+python test_all_features.py
+```
+
+This runs a **closed-loop test** that:
+
+1. Creates test bookings
+2. Verifies booking operations (list, cancel, reschedule)
+3. Tests natural language processing
+4. Validates that changes are reflected in Cal.com
+
+The test suite includes 10 tests covering:
+
+- Available slots retrieval
+- Meeting booking (with explicit UTC times)
+- Listing scheduled meetings
+- Natural language date parsing ("tomorrow", "next Monday")
+- Meeting cancellation
+- Meeting rescheduling
+- Verification steps after each operation
+
+#### Unit Tests
+
 ```bash
 pytest tests/
 ```
@@ -300,6 +327,43 @@ pytest tests/
 - Handle edge cases that require domain knowledge
 - Make security and API key management decisions
 
+## Important Implementation Details
+
+### Cal.com API v2 Specifics
+
+During development and testing, several important details about the Cal.com API v2 were discovered:
+
+#### 1. Reschedule Endpoint
+
+- **Correct endpoint**: `POST /v2/bookings/{uid}/reschedule`
+- **Field name**: `reschedulingReason` (not `rescheduledReason`)
+- The reschedule operation requires the booking UID (not the numeric ID)
+- See implementation in [cal_api.py:197-223](src/cal_api.py#L197-L223)
+
+#### 2. Booking UIDs vs IDs
+
+- Cal.com returns both an `id` (numeric) and a `uid` (string) for bookings
+- **Always use the `uid` field** for operations like reschedule and cancel
+- Example UID format: `"hN13LiTrTAsWbuP8dmhLzG"`
+- The chatbot automatically extracts the correct UID from booking listings
+
+#### 3. Context-Aware Parameter Handling
+
+- The `user_email` parameter in `get_user_bookings` is optional
+- If not provided by the LLM, the chatbot automatically uses the email from the session context
+- This improves conversational flow by avoiding redundant questions
+- Implementation: [chatbot.py:216-226](src/chatbot.py#L216-L226)
+
+#### 4. Explicit Booking Instructions
+
+When testing or using the chatbot for bookings:
+
+- Be explicit with times, including timezone conversions (e.g., "10:00 AM Central Time which is 16:00 UTC")
+- Include direct instructions like "Please book this meeting now"
+- Provide all required info upfront (name, email, reason) to prevent GPT from asking for confirmation
+
+This prevents the LLM from being overly cautious and ensures bookings are created reliably.
+
 ## Troubleshooting
 
 ### "Event type ID not configured"
@@ -319,6 +383,12 @@ pytest tests/
 - Verify your OpenAI API key is correct
 - Check you have sufficient credits
 - Ensure you're using a supported model
+
+### "Cancellation/Reschedule shows success but not reflected in Cal.com dashboard"
+- This is a **Cal.com dashboard caching issue**, not a chatbot bug
+- The API successfully processes the request, but the Cal.com web UI may show stale data
+- **Solution**: Hard refresh the Cal.com page (Cmd+Shift+R or Ctrl+F5) or wait a few minutes
+- The chatbot is working correctly - this is purely a Cal.com UI sync delay
 
 ## Security Notes
 

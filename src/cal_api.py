@@ -125,6 +125,12 @@ class CalApiClient:
                 headers=self.headers,
                 json=payload
             )
+
+            # Log error details for debugging
+            if response.status_code >= 400:
+                error_body = response.text
+                raise Exception(f"Cal.com booking failed ({response.status_code}): {error_body}")
+
             response.raise_for_status()
             data = response.json()
             return data.get("data", {})
@@ -194,7 +200,7 @@ class CalApiClient:
 
     async def reschedule_booking(
         self,
-        booking_id: int,
+        booking_uid: str,
         new_start_time: str,
         reason: Optional[str] = None
     ) -> Dict[str, Any]:
@@ -202,7 +208,7 @@ class CalApiClient:
         Reschedule a booking
 
         Args:
-            booking_id: The booking ID to reschedule
+            booking_uid: The booking UID (string) to reschedule
             new_start_time: New start time in ISO format
             reason: Optional rescheduling reason
         """
@@ -210,11 +216,11 @@ class CalApiClient:
             "start": new_start_time
         }
         if reason:
-            payload["rescheduledReason"] = reason
+            payload["reschedulingReason"] = reason
 
         async with httpx.AsyncClient() as client:
-            response = await client.patch(
-                f"{self.base_url}/bookings/{booking_id}",
+            response = await client.post(
+                f"{self.base_url}/bookings/{booking_uid}/reschedule",
                 headers=self.headers,
                 json=payload
             )

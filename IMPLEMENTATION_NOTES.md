@@ -31,6 +31,8 @@ AI is excellent at defining function schemas:
 
 **Example**: The `tools.py` file contains 5 well-defined function schemas that the LLM uses to interact with Cal.com.
 
+**Important discovery**: Some parameters that seem required (like `user_email` in `get_user_bookings`) can be made optional by using context fallback logic in the chatbot implementation. This improves the conversational flow by allowing the system to automatically use the user's email from the session context.
+
 ### 4. Documentation Generation
 AI can create comprehensive documentation:
 - README files with setup instructions
@@ -149,14 +151,29 @@ CAL_USER_EMAIL=your@email.com
 
 **Issue**: API documentation may not match actual responses.
 
+**Critical lesson learned**: The Cal.com API v2 documentation can be misleading. During development, we discovered:
+
+1. **Reschedule endpoint was wrong in initial implementation**
+   - ❌ Wrong: `PATCH /v2/bookings/{uid}` with `rescheduledReason` field
+   - ✅ Correct: `POST /v2/bookings/{uid}/reschedule` with `reschedulingReason` field
+   - This caused rescheduled meetings to appear successful in the chatbot but not actually update in Cal.com
+   - Fixed in: [cal_api.py:197-223](src/cal_api.py#L197-L223)
+
+2. **Booking UIDs vs IDs**
+   - Cal.com uses string UIDs (e.g., "hN13LiTrTAsWbuP8dmhLzG") for operations like reschedule and cancel
+   - The numeric `id` field is NOT the same as the `uid` field
+   - Always use `uid` from the booking response for subsequent operations
+   - Updated in: [tools.py:122-140](src/tools.py#L122-L140)
+
 **What to verify**:
 
 1. **Booking Response Format**
    ```python
-   # Expected structure (verify this matches reality)
+   # Expected structure (verified to work)
    {
        "data": {
            "id": 12345,
+           "uid": "hN13LiTrTAsWbuP8dmhLzG",  # Use this for reschedule/cancel
            "startTime": "2024-01-15T14:00:00Z",
            "endTime": "2024-01-15T14:30:00Z",
            "attendees": [...]
@@ -216,15 +233,45 @@ CAL_USER_EMAIL=your@email.com
 
 ## Testing Strategy
 
-### 1. Manual Testing Checklist
+### 1. Automated Testing Suite
+
+A comprehensive test suite is available in [test_all_features.py](test_all_features.py) that implements **closed-loop testing**:
+
+```bash
+python test_all_features.py
+```
+
+This test suite includes 10 tests that verify all core and bonus features:
+
+1. Get available time slots (verify API connectivity)
+2. Book meeting #1 (for later cancellation test)
+3. Book meeting #2 (for later reschedule test)
+4. List scheduled meetings (verify 2 bookings exist)
+5. Natural language - "tomorrow"
+6. Natural language - "next Monday"
+7. Cancel meeting #1 (verify cancel functionality)
+8. List meetings again (verify only 1 booking remains)
+9. Reschedule meeting #2 (verify reschedule functionality)
+10. List meetings again (verify new time is reflected)
+
+**Key testing insight**: When testing booking creation, be explicit in your prompts:
+
+
+- Include both local time AND UTC time: "10:00 AM Central Time (which is 16:00 UTC)"
+- Add direct instruction: "Please book this meeting now"
+- Provide all required information upfront (name, email, reason)
+
+This prevents GPT from being overly cautious and asking for additional confirmations.
+
+### 2. Manual Testing Checklist
 
 Run through these scenarios:
 
-- [ ] Book a meeting for tomorrow
-- [ ] Book a meeting for "next Monday at 2pm"
-- [ ] List your scheduled meetings
-- [ ] Cancel a specific meeting
-- [ ] Reschedule a meeting
+- [x] Book a meeting for tomorrow (verified in test suite)
+- [x] Book a meeting for "next Monday at 2pm" (verified in test suite)
+- [x] List your scheduled meetings (verified in test suite)
+- [x] Cancel a specific meeting (verified in test suite)
+- [x] Reschedule a meeting (verified in test suite)
 - [ ] Try to book at an unavailable time
 - [ ] Try to book in the past
 - [ ] Ask for available slots without booking
