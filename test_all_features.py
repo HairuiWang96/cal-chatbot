@@ -28,15 +28,15 @@ async def test_all_features():
     tests = [
         {
             "name": "Test 1: Get Available Time Slots",
-            "message": "Show me available times for Monday January 12th, 2026",
+            "message": "Show me available times for Monday January 19th, 2026",
         },
         {
             "name": "Test 2: Book Meeting #1 (For Cancel Test)",
-            "message": "I want to book a meeting on Tuesday January 13th, 2026 at 10:00 AM Central Time (which is 16:00 UTC). My name is Harry Wang, my email is hairuiwang@yahoo.com, and the reason is to discuss the project requirements. Please book this meeting now.",
+            "message": "I want to book a meeting on Tuesday January 20th, 2026 at 10:00 AM Central Time (which is 16:00 UTC). My name is Harry Wang, my email is hairuiwang@yahoo.com, and the reason is to discuss the project requirements. Please book this meeting now.",
         },
         {
             "name": "Test 3: Book Meeting #2 (For Reschedule Test)",
-            "message": "I want to book another meeting on Wednesday January 14th, 2026 at 10:00 AM Central Time (which is 17:00 UTC). My name is Harry Wang, my email is hairuiwang@yahoo.com, and the reason is to discuss the implementation details. Please book this meeting now.",
+            "message": "I want to book another meeting on Wednesday January 21th, 2026 at 10:00 AM Central Time (which is 17:00 UTC). My name is Harry Wang, my email is hairuiwang@yahoo.com, and the reason is to discuss the implementation details. Please book this meeting now.",
         },
         {
             "name": "Test 4: List Scheduled Meetings",
@@ -52,7 +52,7 @@ async def test_all_features():
         },
         {
             "name": "Test 7: Cancel Meeting #1",
-            "message": "Cancel my meeting on January 13th",
+            "message": "Cancel my meeting on January 20th",
         },
         {
             "name": "Test 8: Verify Cancellation",
@@ -60,7 +60,7 @@ async def test_all_features():
         },
         {
             "name": "Test 9: Reschedule Meeting #2 (Bonus)",
-            "message": "Reschedule my Wednesday meeting to Thursday at 3pm",
+            "message": "Reschedule my Wednesday January 21th, 2026 meeting to Thursday January 22th, 2026 at 3pm",
         },
         {
             "name": "Test 10: Verify Reschedule",
