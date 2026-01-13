@@ -5,10 +5,10 @@
 # Cal.com Chatbot - Quick Start Script
 # ============================================================================
 #
-# This is a BASH SCRIPT that automates the setup and running of the chatbot.
+#! This is a BASH SCRIPT that automates the setup and running of the chatbot.
 # Think of it as a "one-click" launcher for the project.
 #
-# WHAT IS A BASH SCRIPT?
+#! WHAT IS A BASH SCRIPT?
 # A bash script is a text file containing commands that would normally be typed
 # into the terminal. Instead of typing them one by one, you can run them all
 # at once by executing this script.
@@ -42,7 +42,7 @@
 echo "=================================================="
 echo "Cal.com Chatbot - Quick Start"
 echo "=================================================="
-echo ""  # Empty line for spacing
+echo ""  #! Empty line for spacing
 
 # ============================================================================
 # STEP 1: CHECK IF .env FILE EXISTS
@@ -76,7 +76,7 @@ if [ ! -f .env ]; then
     echo ""
     echo "Then run this script again."
 
-    # Exit with error code 1 (non-zero means error)
+    #! Exit with error code 1 (non-zero means error)
     # This stops the script so user can add their keys
     exit 1
 fi
@@ -89,7 +89,7 @@ fi
 
 # Check if venv directory exists
 # [ ! -d "venv" ] means "if venv directory does NOT exist"
-# -d checks if it's a directory
+#! -d checks if it's a directory
 if [ ! -d "venv" ]; then
     echo "📦 Creating virtual environment..."
 
@@ -105,13 +105,13 @@ fi
 # ============================================================================
 # STEP 3: ACTIVATE VIRTUAL ENVIRONMENT
 # ============================================================================
-# Activating makes this terminal session use the virtual environment's Python
-# All pip installs and python commands will use this isolated environment
+#! Activating makes this terminal session use the virtual environment's Python
+#! All pip installs and python commands will use this isolated environment
 
 echo "🔧 Activating virtual environment..."
 
-# source runs the activate script which modifies the shell environment
-# venv/bin/activate sets up PATH and other variables
+#! source runs the activate script which modifies the shell environment
+#! venv/bin/activate sets up PATH and other variables
 # After this, "python" and "pip" will use the virtual environment
 source venv/bin/activate
 
@@ -123,14 +123,14 @@ source venv/bin/activate
 echo "📥 Installing dependencies..."
 
 # Upgrade pip to latest version (pip is Python's package installer)
-# -q means "quiet" (less output)
+#! -q means "quiet" (less output)
 # --upgrade means replace with newer version if available
 pip install -q --upgrade pip
 
 # Install all packages listed in requirements.txt
 # requirements.txt contains: fastapi, openai, streamlit, etc.
 # -q means quiet mode
-# -r means "read from requirements file"
+#! -r means "read from requirements file"
 pip install -q -r requirements.txt
 
 echo "✅ Dependencies installed"
@@ -155,7 +155,7 @@ echo "5) Exit"                           # Quit the script
 echo ""
 
 # read prompts user for input
-# -p displays a prompt message
+#! -p displays a prompt message
 # The user's input is stored in the variable "choice"
 read -p "Enter your choice (1-5): " choice
 
@@ -242,7 +242,7 @@ case $choice in
     5)
         echo "Goodbye!"
 
-        # exit 0 means successful exit (no error)
+        #! exit 0 means successful exit (no error)
         # Exit code 0 indicates everything went well
         exit 0
         ;;

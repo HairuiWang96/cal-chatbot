@@ -1,15 +1,15 @@
 """
 Cal.com Chatbot Package
 
-This __init__.py file marks the 'src' directory as a Python package.
+!This __init__.py file marks the 'src' directory as a Python package.
 
-WHAT IS __init__.py?
+!WHAT IS __init__.py?
 - Makes a directory importable as a Python package
 - Allows imports like: from src.chatbot import CalChatbot
 - Can contain package-level initialization code (not needed here)
 - Can define what's exported when someone does: from src import *
 
-WHY IS THIS FILE MOSTLY EMPTY?
+!WHY IS THIS FILE MOSTLY EMPTY?
 - We don't need package-level initialization
 - Each module (chatbot.py, cal_api.py, etc.) is imported directly
 - Keeping it simple and minimal is best practice

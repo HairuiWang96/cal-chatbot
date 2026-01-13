@@ -101,11 +101,15 @@ async def test_cal_api():
             if event_types:
                 for et in event_types:
                     # Extract key fields from each event type
-                    # .get() is safe - returns None if field doesn't exist
-                    print(f"   - ID: {et.get('id')}, Title: {et.get('title')}, Slug: {et.get('slug')}")
+                    #! .get() is safe - returns None if field doesn't exist
+                    print(
+                        f"   - ID: {et.get('id')}, Title: {et.get('title')}, Slug: {et.get('slug')}"
+                    )
 
                 # Helpful tip: Users need to configure one of these IDs
-                print(f"\n💡 Tip: Use one of these IDs in your .env file as CAL_EVENT_TYPE_ID")
+                print(
+                    f"\n💡 Tip: Use one of these IDs in your .env file as CAL_EVENT_TYPE_ID"
+                )
             else:
                 # No event types found - user needs to create one in Cal.com
                 print("⚠️  No event types found. Please create an event type in Cal.com")
@@ -114,8 +118,9 @@ async def test_cal_api():
         except Exception as e:
             # If this test fails, show the error but continue with other tests
             import traceback
+
             print(f"❌ Failed to get event types: {str(e)}")
-            traceback.print_exc()  # Show full stack trace for debugging
+            traceback.print_exc()  #! Show full stack trace for debugging
             print()
 
         # ====================================================================
@@ -137,15 +142,19 @@ async def test_cal_api():
                 # End of day: 23:59:59
                 # .isoformat() converts datetime to string like "2026-01-15T00:00:00"
                 # We add "Z" to indicate UTC timezone
-                start_time = tomorrow.replace(hour=0, minute=0, second=0).isoformat() + "Z"
-                end_time = tomorrow.replace(hour=23, minute=59, second=59).isoformat() + "Z"
+                start_time = (
+                    tomorrow.replace(hour=0, minute=0, second=0).isoformat() + "Z"
+                )
+                end_time = (
+                    tomorrow.replace(hour=23, minute=59, second=59).isoformat() + "Z"
+                )
 
                 # Call API to get available slots for tomorrow
                 # event_type_id must be an integer, so we convert the string from .env
                 slots = await client.get_available_slots(
                     event_type_id=int(event_type_id),
                     start_time=start_time,
-                    end_time=end_time
+                    end_time=end_time,
                 )
 
                 # Display results
@@ -182,8 +191,7 @@ async def test_cal_api():
                 # status="upcoming" means future meetings (not past or cancelled)
                 # attendee_email filters to only this user's meetings
                 bookings = await client.get_bookings(
-                    status="upcoming",
-                    attendee_email=user_email
+                    status="upcoming", attendee_email=user_email
                 )
 
                 # Display results
@@ -193,7 +201,9 @@ async def test_cal_api():
                 if bookings:
                     for booking in bookings[:3]:  # [:3] gets first 3 items
                         # Extract and display key booking details
-                        print(f"   - ID: {booking.get('id')}, Start: {booking.get('startTime')}")
+                        print(
+                            f"   - ID: {booking.get('id')}, Start: {booking.get('startTime')}"
+                        )
                 print()
 
             except Exception as e:
