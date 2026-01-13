@@ -18,9 +18,17 @@ response formats than V1. The API version is specified in the headers.
 
 # Import standard Python libraries
 import os  # For reading environment variables
-from typing import List, Dict, Any, Optional  # Type hints for function parameters and returns
-from datetime import datetime, timedelta  # For working with dates (imported but not used much here)
-import httpx  # Modern async HTTP client (like requests but supports async/await)
+from typing import (
+    List,
+    Dict,
+    Any,
+    Optional,
+)  # Type hints for function parameters and returns
+from datetime import (
+    datetime,
+    timedelta,
+)  # For working with dates (imported but not used much here)
+import httpx  #! Modern async HTTP client (like requests but supports async/await)
 from dotenv import load_dotenv  # For loading .env file
 
 # Load environment variables from .env file
@@ -54,7 +62,9 @@ class CalApiClient:
         self.api_key = api_key or os.getenv("CAL_API_KEY")
 
         # Get base URL from parameter or environment, default to Cal.com v2 API
-        self.base_url = base_url or os.getenv("CAL_API_BASE_URL", "https://api.cal.com/v2")
+        self.base_url = base_url or os.getenv(
+            "CAL_API_BASE_URL", "https://api.cal.com/v2"
+        )
 
         # Validate that we have an API key
         if not self.api_key:
@@ -65,7 +75,7 @@ class CalApiClient:
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",  # Bearer token authentication
             "Content-Type": "application/json",  # We're sending/receiving JSON
-            "cal-api-version": "2024-08-13"  # Required for v2 API - tells Cal.com which API version to use
+            "cal-api-version": "2024-08-13",  # Required for v2 API - tells Cal.com which API version to use
         }
 
     async def get_event_types(self) -> List[Dict[str, Any]]:
@@ -85,12 +95,12 @@ class CalApiClient:
             List of event type dictionaries with details about each type
         """
         # Use httpx AsyncClient for making HTTP requests
-        # "async with" ensures the client is properly closed after use
+        #! "async with" ensures the client is properly closed after use
         async with httpx.AsyncClient() as client:
             # Make GET request to fetch event types
             response = await client.get(
                 f"{self.base_url}/event-types",  # The API endpoint
-                headers=self.headers  # Include auth headers
+                headers=self.headers,  # Include auth headers
             )
 
             # Raise exception if request failed (4xx or 5xx status codes)
@@ -112,10 +122,7 @@ class CalApiClient:
             return event_types
 
     async def get_available_slots(
-        self,
-        event_type_id: int,
-        start_time: str,
-        end_time: str
+        self, event_type_id: int, start_time: str, end_time: str
     ) -> List[Dict[str, Any]]:
         """
         Get available time slots for booking
@@ -146,8 +153,8 @@ class CalApiClient:
                     # Cal.com uses camelCase for parameter names
                     "eventTypeId": event_type_id,
                     "startTime": start_time,
-                    "endTime": end_time
-                }
+                    "endTime": end_time,
+                },
             )
             response.raise_for_status()
             data = response.json()
@@ -171,7 +178,7 @@ class CalApiClient:
         attendee_email: str,
         attendee_name: str,
         attendee_timezone: str = "UTC",
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Create a new booking (schedule a meeting)
@@ -214,8 +221,8 @@ class CalApiClient:
                 "name": attendee_name,
                 "email": attendee_email,
                 "timeZone": attendee_timezone,  # Note: camelCase per Cal.com API
-                "language": "en"  # Language for confirmation emails
-            }
+                "language": "en",  # Language for confirmation emails
+            },
         }
 
         # Add optional metadata (meeting reason, custom fields, etc.)
@@ -227,14 +234,16 @@ class CalApiClient:
             response = await client.post(
                 f"{self.base_url}/bookings",  # Bookings endpoint
                 headers=self.headers,
-                json=payload  # Send payload as JSON body
+                json=payload,  # Send payload as JSON body
             )
 
             # Enhanced error handling - show actual Cal.com error message
             # This helps debug issues like "time slot unavailable" or "invalid parameters"
             if response.status_code >= 400:
                 error_body = response.text
-                raise Exception(f"Cal.com booking failed ({response.status_code}): {error_body}")
+                raise Exception(
+                    f"Cal.com booking failed ({response.status_code}): {error_body}"
+                )
 
             response.raise_for_status()
 
@@ -247,7 +256,7 @@ class CalApiClient:
         status: str = "upcoming",
         attendee_email: Optional[str] = None,
         after_start: Optional[str] = None,
-        before_start: Optional[str] = None
+        before_start: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
         Get bookings for the authenticated user
@@ -298,7 +307,7 @@ class CalApiClient:
             response = await client.get(
                 f"{self.base_url}/bookings",  # Same endpoint as create, but GET instead of POST
                 headers=self.headers,
-                params=params  # Filters passed as query parameters
+                params=params,  # Filters passed as query parameters
             )
             response.raise_for_status()
             data = response.json()
@@ -310,7 +319,9 @@ class CalApiClient:
                 return data["data"] if isinstance(data["data"], list) else []
             return []
 
-    async def cancel_booking(self, booking_uid: str, reason: Optional[str] = None) -> Dict[str, Any]:
+    async def cancel_booking(
+        self, booking_uid: str, reason: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         Cancel a booking (delete a scheduled meeting)
 
@@ -339,10 +350,8 @@ class CalApiClient:
             HTTPException: If booking not found or already cancelled
         """
         # Cal.com requires a cancellation reason for the host
-        # If not provided, use a default message
-        payload = {
-            "cancellationReason": reason or "User requested cancellation"
-        }
+        #! If not provided, use a default message
+        payload = {"cancellationReason": reason or "User requested cancellation"}
 
         async with httpx.AsyncClient() as client:
             # Make POST request to cancel endpoint
@@ -350,17 +359,14 @@ class CalApiClient:
             response = await client.post(
                 f"{self.base_url}/bookings/{booking_uid}/cancel",  # UID in URL path
                 headers=self.headers,
-                json=payload  # Reason in request body
+                json=payload,  # Reason in request body
             )
             response.raise_for_status()
             data = response.json()
             return data.get("data", {})
 
     async def reschedule_booking(
-        self,
-        booking_uid: str,
-        new_start_time: str,
-        reason: Optional[str] = None
+        self, booking_uid: str, new_start_time: str, reason: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Reschedule a booking (move a meeting to a new time)
@@ -397,9 +403,7 @@ class CalApiClient:
             HTTPException: If booking not found or new time unavailable
         """
         # Build payload with new start time
-        payload = {
-            "start": new_start_time  # When the meeting should be moved to
-        }
+        payload = {"start": new_start_time}  # When the meeting should be moved to
 
         # Add optional reason for rescheduling
         if reason:
@@ -410,7 +414,7 @@ class CalApiClient:
             response = await client.post(
                 f"{self.base_url}/bookings/{booking_uid}/reschedule",  # Old UID in URL
                 headers=self.headers,
-                json=payload  # New time in body
+                json=payload,  # New time in body
             )
             response.raise_for_status()
             data = response.json()

@@ -42,19 +42,17 @@ WHY IS THIS IMPORTANT?
 from typing import List, Dict, Any
 
 # Tool definitions for OpenAI function calling
-# This list is imported by chatbot.py and passed to OpenAI
+#! This list is imported by chatbot.py and passed to OpenAI
 TOOLS: List[Dict[str, Any]] = [
     # TOOL 1: Get Available Slots
     # This function checks when someone is available for a meeting
     {
-        "type": "function",  # Must be "function" for OpenAI function calling
+        "type": "function",  #! Must be "function" for OpenAI function calling
         "function": {
             "name": "get_available_slots",  # The function name (must match chatbot.py)
-
             # Description is CRITICAL - it tells GPT when to use this function
             # Good descriptions = GPT calls the right function at the right time
             "description": "Get available time slots for booking a meeting. Use this when the user wants to book a meeting and you need to check availability.",
-
             # Parameters define what GPT needs to provide when calling this function
             "parameters": {
                 "type": "object",  # Parameters are passed as an object (dictionary)
@@ -63,17 +61,17 @@ TOOLS: List[Dict[str, Any]] = [
                     "date": {
                         "type": "string",  # Data type of the parameter
                         # Description helps GPT understand what format to use
-                        "description": "The date to check availability for, in YYYY-MM-DD format (e.g., '2024-01-15')"
+                        "description": "The date to check availability for, in YYYY-MM-DD format (e.g., '2026-01-15')",
                     },
                     "event_type_id": {
                         "type": "integer",
-                        "description": "The event type ID to check availability for. If not provided, use the default from environment."
-                    }
+                        "description": "The event type ID to check availability for. If not provided, use the default from environment.",
+                    },
                 },
                 # Required parameters - GPT must provide these or ask the user
-                "required": ["date"]
-            }
-        }
+                "required": ["date"],
+            },
+        },
     },
     # TOOL 2: Create Booking
     # This function actually books/schedules a meeting
@@ -81,11 +79,9 @@ TOOLS: List[Dict[str, Any]] = [
         "type": "function",
         "function": {
             "name": "create_booking",
-
             # Note: Description mentions "after confirming" - this guides GPT to
             # check availability first before booking
             "description": "Create a new booking/meeting. Use this after confirming the time slot is available and you have all necessary details (date, time, attendee info, reason).",
-
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -93,33 +89,33 @@ TOOLS: List[Dict[str, Any]] = [
                         "type": "string",
                         # ISO 8601 format is CRITICAL - it's the standard datetime format
                         # Example: "2026-01-15T14:00:00Z" = Jan 15, 2026 at 2pm UTC
-                        "description": "The start time of the meeting in ISO 8601 format (e.g., '2024-01-15T14:00:00Z')"
+                        "description": "The start time of the meeting in ISO 8601 format (e.g., '2026-01-15T14:00:00Z')",
                     },
                     "attendee_email": {
                         "type": "string",
-                        "description": "Email address of the attendee booking the meeting"
+                        "description": "Email address of the attendee booking the meeting",
                     },
                     "attendee_name": {
                         "type": "string",
-                        "description": "Full name of the attendee"
+                        "description": "Full name of the attendee",
                     },
                     "reason": {
                         "type": "string",
-                        "description": "Reason or description for the meeting"
+                        "description": "Reason or description for the meeting",
                     },
                     "event_type_id": {
                         "type": "integer",
-                        "description": "The event type ID. If not provided, use the default from environment."
+                        "description": "The event type ID. If not provided, use the default from environment.",
                     },
                     "timezone": {
                         "type": "string",
-                        "description": "Timezone of the attendee (e.g., 'America/New_York', 'UTC'). Defaults to UTC."
-                    }
+                        "description": "Timezone of the attendee (e.g., 'America/New_York', 'UTC'). Defaults to UTC.",
+                    },
                 },
                 # All these are required - GPT must get them from the user before booking
-                "required": ["start_time", "attendee_email", "attendee_name", "reason"]
-            }
-        }
+                "required": ["start_time", "attendee_email", "attendee_name", "reason"],
+            },
+        },
     },
     # TOOL 3: Get User Bookings
     # This function retrieves a list of scheduled meetings
@@ -127,41 +123,39 @@ TOOLS: List[Dict[str, Any]] = [
         "type": "function",
         "function": {
             "name": "get_user_bookings",
-
             # Note: Mentions "email will be automatically used from context"
             # This tells GPT it doesn't need to ask for email - we already have it
             "description": "Get a list of scheduled bookings/meetings for a user. Use this when the user asks to see their scheduled events or meetings. The user's email will be automatically used from context.",
-
             "parameters": {
                 "type": "object",
                 "properties": {
                     "user_email": {
                         "type": "string",
                         # This is optional because chatbot.py passes email in context
-                        "description": "Email address of the user to get bookings for (optional, will use user's email from context if not provided)"
+                        "description": "Email address of the user to get bookings for (optional, will use user's email from context if not provided)",
                     },
                     "status": {
                         "type": "string",
                         # The "enum" field restricts values to these options only
                         # GPT can only choose from: "upcoming", "past", or "cancelled"
                         "enum": ["upcoming", "past", "cancelled"],
-                        "description": "Filter bookings by status. Defaults to 'upcoming'."
+                        "description": "Filter bookings by status. Defaults to 'upcoming'.",
                     },
                     "after_date": {
                         "type": "string",
                         # Date filters let users say "show meetings this week" or "after Monday"
-                        "description": "Only get bookings after this date in YYYY-MM-DD format"
+                        "description": "Only get bookings after this date in YYYY-MM-DD format",
                     },
                     "before_date": {
                         "type": "string",
-                        "description": "Only get bookings before this date in YYYY-MM-DD format"
-                    }
+                        "description": "Only get bookings before this date in YYYY-MM-DD format",
+                    },
                 },
                 # No required parameters! User can just say "show my meetings"
                 # and GPT will use defaults (upcoming status, no date filters)
-                "required": []
-            }
-        }
+                "required": [],
+            },
+        },
     },
     # TOOL 4: Cancel Booking
     # This function cancels/deletes a scheduled meeting
@@ -169,13 +163,11 @@ TOOLS: List[Dict[str, Any]] = [
         "type": "function",
         "function": {
             "name": "cancel_booking",
-
             # IMPORTANT: Description guides GPT to use a two-step process:
             # 1. First call get_user_bookings to find the meeting
             # 2. Then call cancel_booking with the UID
             # Also emphasizes UID vs ID distinction (common source of bugs!)
             "description": "Cancel a scheduled booking/meeting. First use get_user_bookings to find the booking UID, then cancel it. The booking UID is a string like 'eTHSdCB89qzCiazPWHV15x', not the numeric ID.",
-
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -183,17 +175,17 @@ TOOLS: List[Dict[str, Any]] = [
                         "type": "string",
                         # Emphasize again: UID (string), not ID (number)
                         # This is critical because Cal.com API only accepts UIDs for cancel/reschedule
-                        "description": "The UID of the booking to cancel (string, not numeric ID). Get this from get_user_bookings."
+                        "description": "The UID of the booking to cancel (string, not numeric ID). Get this from get_user_bookings.",
                     },
                     "reason": {
                         "type": "string",
-                        "description": "Reason for cancellation"
-                    }
+                        "description": "Reason for cancellation",
+                    },
                 },
                 # Only booking_uid is required; reason is optional
-                "required": ["booking_uid"]
-            }
-        }
+                "required": ["booking_uid"],
+            },
+        },
     },
     # TOOL 5: Reschedule Booking
     # This function moves a meeting to a new time
@@ -201,34 +193,32 @@ TOOLS: List[Dict[str, Any]] = [
         "type": "function",
         "function": {
             "name": "reschedule_booking",
-
             # Similar to cancel - guides GPT through the two-step process
             # Also emphasizes the UID vs ID distinction
             "description": "Reschedule an existing booking to a new time. Use this when the user wants to change the time of an existing meeting. First use get_user_bookings to find the booking UID, then reschedule it. The booking UID is a string like 'hN13LiTrTAsWbuP8dmhLzG', not the numeric ID.",
-
             "parameters": {
                 "type": "object",
                 "properties": {
                     "booking_uid": {
                         "type": "string",
                         # Again, emphasize UID (string) not ID (number)
-                        "description": "The UID of the booking to reschedule (string, not numeric ID). Get this from get_user_bookings."
+                        "description": "The UID of the booking to reschedule (string, not numeric ID). Get this from get_user_bookings.",
                     },
                     "new_start_time": {
                         "type": "string",
                         # New time must be in ISO 8601 format like create_booking
-                        "description": "The new start time in ISO 8601 format (e.g., '2024-01-15T14:00:00Z')"
+                        "description": "The new start time in ISO 8601 format (e.g., '2024-01-15T14:00:00Z')",
                     },
                     "reason": {
                         "type": "string",
-                        "description": "Optional reason for rescheduling"
-                    }
+                        "description": "Optional reason for rescheduling",
+                    },
                 },
                 # Both UID and new time are required; reason is optional
-                "required": ["booking_uid", "new_start_time"]
-            }
-        }
-    }
+                "required": ["booking_uid", "new_start_time"],
+            },
+        },
+    },
 ]
 
 # HOW GPT USES THESE TOOLS:

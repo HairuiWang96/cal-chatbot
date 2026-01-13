@@ -89,7 +89,7 @@ async def example_conversation():
     response, conversation_history = await chatbot.chat(
         user_message=user_message,
         conversation_history=conversation_history,
-        user_email="john@example.com"
+        user_email="john@example.com",
     )
 
     # Display the bot's response
@@ -113,7 +113,7 @@ async def example_conversation():
     response, conversation_history = await chatbot.chat(
         user_message=user_message,
         conversation_history=conversation_history,
-        user_email="john@example.com"
+        user_email="john@example.com",
     )
 
     print(f"Bot: {response}")
@@ -133,7 +133,7 @@ async def interactive_mode():
     """
     INTERACTIVE MODE: Live terminal chat session
 
-    This function creates a REPL (Read-Eval-Print Loop) where you can chat
+    !This function creates a REPL (Read-Eval-Print Loop) where you can chat
     with the bot in real-time from the terminal.
 
     HOW IT WORKS:
@@ -174,7 +174,7 @@ async def interactive_mode():
     # Main chat loop - runs forever until user types quit/exit
     while True:
         # Get user's message
-        # input() waits for user to type and press Enter
+        #! input() waits for user to type and press Enter
         user_message = input("\nYou: ").strip()
 
         # Check if user wants to quit
@@ -195,7 +195,7 @@ async def interactive_mode():
             response, conversation_history = await chatbot.chat(
                 user_message=user_message,
                 conversation_history=conversation_history,
-                user_email=user_email
+                user_email=user_email,
             )
 
             # Display bot's response
@@ -211,7 +211,7 @@ async def interactive_mode():
 # This runs when you execute this file directly (not when importing it)
 if __name__ == "__main__":
     # Import sys to access command line arguments
-    # sys.argv is a list: [script_name, arg1, arg2, ...]
+    #! sys.argv is a list: [script_name, arg1, arg2, ...]
     # Example: "python example_usage.py --interactive" gives:
     #   sys.argv = ["example_usage.py", "--interactive"]
     import sys

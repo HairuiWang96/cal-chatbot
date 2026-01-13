@@ -5,8 +5,8 @@ This is the USER INTERFACE for the chatbot - a web page where users can chat
 with the bot to book, view, cancel, and reschedule meetings.
 
 WHAT IS STREAMLIT?
-Streamlit is a Python framework for building web apps quickly. Instead of writing
-HTML/CSS/JavaScript, you write Python code and Streamlit renders it as a web page.
+!Streamlit is a Python framework for building web apps quickly. Instead of writing
+!HTML/CSS/JavaScript, you write Python code and Streamlit renders it as a web page.
 
 WHY STREAMLIT?
 - Fast to build: Create a web UI in minutes
@@ -43,13 +43,14 @@ load_dotenv()
 st.set_page_config(
     page_title="Cal.com Meeting Assistant",  # Shows in browser tab
     page_icon="📅",  # Icon in browser tab
-    layout="wide"  # Use full width of browser
+    layout="wide",  # Use full width of browser
 )
 
 # Custom CSS for styling the page
-# Streamlit allows injecting custom CSS to make the UI look nicer
+#! Streamlit allows injecting custom CSS to make the UI look nicer
 # The unsafe_allow_html=True flag is needed to render HTML/CSS
-st.markdown("""
+st.markdown(
+    """
 <style>
     /* Main header styling - the big title at top */
     .main-header {
@@ -86,12 +87,14 @@ st.markdown("""
         margin-bottom: 1rem;
     }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # Initialize session state
-# SESSION STATE is how Streamlit stores data across page reruns
-# Every time user interacts, Streamlit reruns the entire script
-# Session state persists data between these reruns
+#! SESSION STATE is how Streamlit stores data across page reruns
+#! Every time user interacts, Streamlit reruns the entire script
+#! Session state persists data between these reruns
 
 # Store conversation messages
 # This is a list of {"role": "user/assistant", "content": "message text"}
@@ -99,7 +102,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 # Store chatbot instance
-# We create this once and reuse it (expensive to recreate)
+#! We create this once and reuse it (expensive to recreate)
 if "chatbot" not in st.session_state:
     st.session_state.chatbot = None
 
@@ -143,7 +146,7 @@ async def send_message(user_message: str, user_email: str):
     response, updated_history = await st.session_state.chatbot.chat(
         user_message=user_message,
         conversation_history=st.session_state.messages,
-        user_email=user_email
+        user_email=user_email,
     )
     return response, updated_history
 
@@ -154,8 +157,14 @@ async def send_message(user_message: str, user_email: str):
 
 # Display the main header and subtitle
 # Using custom CSS classes defined above for styling
-st.markdown('<div class="main-header">📅 Cal.com Meeting Assistant</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Book, view, and manage your meetings with natural language</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="main-header">📅 Cal.com Meeting Assistant</div>',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    '<div class="sub-header">Book, view, and manage your meetings with natural language</div>',
+    unsafe_allow_html=True,
+)
 
 # ============================================================================
 # SIDEBAR - Settings and instructions
@@ -170,7 +179,7 @@ with st.sidebar:
     user_email = st.text_input(
         "Your Email",
         value=st.session_state.user_email,  # Pre-fill with stored value
-        help="Your email address for booking queries"  # Hover tooltip
+        help="Your email address for booking queries",  # Hover tooltip
     )
     # Save the email back to session state
     st.session_state.user_email = user_email
@@ -180,22 +189,26 @@ with st.sidebar:
 
     # Instructions section - what the chatbot can do
     st.markdown("### 💡 What I can do:")
-    st.markdown("""
+    st.markdown(
+        """
     - **Book meetings**: "Help me book a meeting"
     - **List meetings**: "Show me my scheduled events"
     - **Cancel meetings**: "Cancel my 3pm meeting today"
     - **Reschedule meetings**: "Move my meeting to tomorrow"
-    """)
+    """
+    )
 
     st.markdown("---")
 
     # Tips section - how to use the chatbot effectively
     st.markdown("### 📝 Tips:")
-    st.markdown("""
+    st.markdown(
+        """
     - Use natural language for dates/times
     - Provide your email for booking queries
     - Be specific when canceling/rescheduling
-    """)
+    """
+    )
 
     st.markdown("---")
 
@@ -246,13 +259,16 @@ with chat_container:
 # CHAT INPUT - Handle new user messages
 # ============================================================================
 # st.chat_input() creates the text input box at bottom of page
-# The ":=" operator assigns the value AND checks if it's truthy
+#! The ":=" operator assigns the value AND checks if it's truthy
 # So this runs only when user submits a message
 if prompt := st.chat_input("Type your message here..."):
     # VALIDATION: Check if email is needed but missing
     # Some operations (like listing meetings) require an email
     # Check if user is asking to see meetings without providing email
-    if not st.session_state.user_email and any(keyword in prompt.lower() for keyword in ["show", "list", "my meetings", "my events"]):
+    if not st.session_state.user_email and any(
+        keyword in prompt.lower()
+        for keyword in ["show", "list", "my meetings", "my events"]
+    ):
         st.error("⚠️ Please provide your email in the sidebar to view your meetings")
     else:
         # Add user message to conversation history
@@ -288,7 +304,9 @@ if prompt := st.chat_input("Type your message here..."):
                     error_msg = f"Sorry, I encountered an error: {str(e)}"
                     st.error(error_msg)  # Display red error box
                     # Add error to conversation history so it persists
-                    st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                    st.session_state.messages.append(
+                        {"role": "assistant", "content": error_msg}
+                    )
 
 # ============================================================================
 # FOOTER
@@ -296,7 +314,7 @@ if prompt := st.chat_input("Type your message here..."):
 st.markdown("---")  # Horizontal divider
 st.markdown(
     '<div style="text-align: center; color: #666; font-size: 0.9rem;">'
-    'Powered by OpenAI GPT-4 and Cal.com API'
-    '</div>',
-    unsafe_allow_html=True
+    "Powered by OpenAI GPT-4 and Cal.com API"
+    "</div>",
+    unsafe_allow_html=True,
 )

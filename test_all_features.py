@@ -31,9 +31,9 @@ REQUIREMENTS:
 """
 
 import asyncio  # For running async functions
-import sys  # For sys.path manipulation
+import sys  #! For sys.path manipulation
 
-# Add project root to path so we can import src modules
+#! Add project root to path so we can import src modules
 sys.path.insert(0, "/Users/HARRY/Projects/chatbot")
 
 from src.chatbot import CalChatbot  # The chatbot to test
@@ -183,7 +183,7 @@ async def test_all_features():
             # This shows exactly where the error occurred in the code
             traceback.print_exc()
 
-        # Small delay between tests
+        #! Small delay between tests
         # This gives Cal.com API a moment to process and prevents rate limiting
         # await asyncio.sleep(2) pauses execution for 2 seconds
         await asyncio.sleep(2)
@@ -220,14 +220,14 @@ async def test_all_features():
 # This special if statement runs only when this file is executed directly
 # (not when it's imported as a module by another file)
 #
-# WHAT IS __name__ == "__main__"?
-# - When you run "python test_all_features.py", Python sets __name__ to "__main__"
-# - When another file imports this file, __name__ is set to "test_all_features"
-# - This pattern lets us have code that only runs when the file is executed directly
+#! WHAT IS __name__ == "__main__"?
+# !- When you run "python test_all_features.py", Python sets __name__ to "__main__"
+# !- When another file imports this file, __name__ is set to "test_all_features"
+# !- This pattern lets us have code that only runs when the file is executed directly
 #
 # WHY USE asyncio.run()?
 # - test_all_features() is an async function (uses async/await)
 # - asyncio.run() creates an event loop and runs the async function
-# - It's the entry point for running async code from a regular Python script
+#! - It's the entry point for running async code from a regular Python script
 if __name__ == "__main__":
     asyncio.run(test_all_features())

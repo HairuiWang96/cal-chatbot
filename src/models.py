@@ -1,5 +1,5 @@
 """
-Pydantic models for request/response validation
+!Pydantic models for request/response validation
 
 This file defines DATA MODELS using Pydantic. Think of models as blueprints or schemas
 that define what data should look like.
@@ -10,7 +10,7 @@ Pydantic is a Python library for data validation. It:
 2. Validates data types (ensures strings are strings, numbers are numbers, etc.)
 3. Converts data automatically (e.g., "123" string to 123 integer)
 4. Generates helpful error messages if data is invalid
-5. Auto-generates API documentation in FastAPI
+!5. Auto-generates API documentation in FastAPI
 
 WHY USE MODELS?
 - Type Safety: Catch errors early (e.g., passing a number where a string is expected)
@@ -56,9 +56,12 @@ class ChatMessage(BaseModel):
     - Clear structure: Always has role and content
     - Easy to extend: Can add fields like timestamp, metadata later
     """
+
     # The role field tells us who sent this message
-    # The "..." means this field is REQUIRED (must be provided)
-    role: str = Field(..., description="Role of the message sender (user, assistant, system)")
+    #! The "..." means this field is REQUIRED (must be provided)
+    role: str = Field(
+        ..., description="Role of the message sender (user, assistant, system)"
+    )
 
     # The content field is the actual text of the message
     content: str = Field(..., description="Content of the message")
@@ -86,20 +89,22 @@ class ChatRequest(BaseModel):
     - conversation_history: Previous messages for context (optional, defaults to empty)
     - user_email: Needed for booking operations (optional)
     """
+
     # The new message from the user (required)
     message: str = Field(..., description="User message")
 
     # Previous conversation for context
-    # default_factory=list means if not provided, use empty list []
-    # This allows stateless API - client manages conversation history
+    #! default_factory=list means if not provided, use empty list []
+    #! This allows stateless API - client manages conversation history
     conversation_history: List[ChatMessage] = Field(
-        default_factory=list,
-        description="Previous conversation history"
+        default_factory=list, description="Previous conversation history"
     )
 
     # User's email for booking/listing meetings (optional)
     # Optional[str] means this can be a string OR None
-    user_email: Optional[str] = Field(None, description="User's email for booking queries")
+    user_email: Optional[str] = Field(
+        None, description="User's email for booking queries"
+    )
 
 
 class ChatResponse(BaseModel):
@@ -107,7 +112,7 @@ class ChatResponse(BaseModel):
     Response model for chat endpoint - defines what our API returns
 
     After processing a chat message, we return this structure.
-    FastAPI automatically converts our Python objects to JSON using this model.
+    !FastAPI automatically converts our Python objects to JSON using this model.
 
     EXAMPLE RESPONSE:
     {
@@ -123,12 +128,15 @@ class ChatResponse(BaseModel):
     - Client responsibility: Client sends this back in next request for context
     - Flexibility: Client can manage/store history however they want
     """
+
     # The chatbot's response text
     response: str = Field(..., description="Chatbot response")
 
     # Updated conversation including the new exchange
     # This includes all previous messages PLUS the new user message and assistant response
-    conversation_history: List[ChatMessage] = Field(..., description="Updated conversation history")
+    conversation_history: List[ChatMessage] = Field(
+        ..., description="Updated conversation history"
+    )
 
 
 class BookingDetails(BaseModel):
@@ -161,6 +169,7 @@ class BookingDetails(BaseModel):
     - status: "accepted", "pending", "cancelled", etc.
     - attendees: List of people attending with their info
     """
+
     id: int  # Numeric booking ID
     event_type_id: int  # Type of meeting
     title: str  # Meeting title
@@ -188,5 +197,8 @@ class AvailableSlot(BaseModel):
     Cal.com returns list of AvailableSlot objects
     Chatbot shows: "You have 5 available slots: 9am, 10am, 11am, 2pm, 3pm"
     """
+
     time: str  # ISO format datetime for this slot
-    available: bool  # Whether this slot is actually available (usually true in responses)
+    available: (
+        bool  # Whether this slot is actually available (usually true in responses)
+    )

@@ -17,7 +17,7 @@ WHY THIS FILE?
 - Shows how external clients can integrate with the API
 - Demonstrates proper API request/response handling
 
-WHEN TO USE THIS vs EXAMPLE_USAGE.PY?
+!WHEN TO USE THIS vs EXAMPLE_USAGE.PY?
 - example_usage.py: Imports chatbot directly (no server needed)
 - cli_client.py: Calls the API over HTTP (server must be running)
 
@@ -70,7 +70,7 @@ def chat(message, conversation_history, user_email):
     """
     # Make POST request to /chat endpoint
     # requests.post() sends an HTTP POST with JSON body
-    # The json= parameter automatically:
+    #! The json= parameter automatically:
     # 1. Converts the dict to JSON string
     # 2. Sets Content-Type header to application/json
     response = requests.post(
@@ -79,8 +79,8 @@ def chat(message, conversation_history, user_email):
             # This dictionary matches the ChatRequest model in models.py
             "message": message,
             "conversation_history": conversation_history,
-            "user_email": user_email
-        }
+            "user_email": user_email,
+        },
     )
 
     # Check if request succeeded
